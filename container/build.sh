@@ -4,6 +4,7 @@
 #   bash build.sh
 set -euo pipefail
 cd "$(dirname "$0")"
+IMAGE="${IMAGE:-ghcr.io/rajivpoddar/ornith-15-35b-nvfp4-w4a16-sm121-sglang:latest}"
 
 echo "== staging venv (excludes + fix symlinks) =="
 mkdir -p context/venv context/caches
@@ -19,13 +20,13 @@ rsync -a ~/.cache/sglang/.cache/flashinfer/ context/caches/flashinfer/
 rsync -a ~/.cache/sglang/flashinfer/autotune/ context/caches/flashinfer-autotune/
 rsync -a ~/.triton/ context/caches/triton/
 
-cp Dockerfile serve.sh context/
+cp Dockerfile serve.sh apply_sglang_disconnect_abort_backport.py context/
 echo "== context size =="
 du -sh context
 
 echo "== building image =="
-docker build -t ghcr.io/r0b0tlab/ornith-15-35b-nvfp4-w4a16-sm121-sglang:latest context/
+docker build -t "$IMAGE" context/
 
 echo "== pushing =="
-docker push ghcr.io/r0b0tlab/ornith-15-35b-nvfp4-w4a16-sm121-sglang:latest
+docker push "$IMAGE"
 echo "DONE"

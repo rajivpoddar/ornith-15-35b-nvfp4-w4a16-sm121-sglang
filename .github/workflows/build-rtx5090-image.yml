@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "container/Dockerfile.rtx5090"
+      - "container/apply_sglang_disconnect_abort_backport.py"
       - "serve-profiles/rtx5090/**"
       - ".github/workflows/build-rtx5090-image.yml"
   workflow_dispatch:

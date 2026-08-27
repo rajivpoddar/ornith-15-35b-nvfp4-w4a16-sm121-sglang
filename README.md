@@ -276,6 +276,12 @@ first-boot JIT behaves differently on sm_120 discrete parts.
 SGLang `0.5.6.post3.dev9218+g5a7b26c63`, FlashInfer 0.6.17,
 torch 2.13.0+cu130, Python 3.12:
 
+The container keeps that validated SGLang pin and applies a fail-closed
+backport of [sglang#36418](https://github.com/sgl-project/sglang/pull/36418).
+It ensures a disconnected streaming request is forcibly aborted in the
+scheduler instead of decoding as an orphan until `max_tokens`. The build
+refuses to patch an unrecognized or partially modified source file.
+
 ```bash
 python -m sglang.launch_server \
   --model-path r0b0tlab/Ornith-1.5-35B-A3B-NVFP4-W4A16 \
@@ -381,7 +387,8 @@ It scored GSM8K 70.00% vs this recipe's 76.25% and decoded at 38.6 tok/s vs
 ├── docker-compose.rtx5090.yml        # RTX 50 / SM120 32 GB
 ├── docker-compose.rtx-pro-6000.yml   # RTX PRO 6000 / SM120 ~96 GB
 ├── container/                        # GB10 Dockerfile + serve.sh
-│   └── Dockerfile.rtx5090            # x86 SM120 image
+│   ├── Dockerfile.rtx5090            # x86 SM120 image
+│   └── apply_sglang_disconnect_abort_backport.py
 ├── serve-profiles/
 │   ├── rtx5090/serve.sh
 │   └── rtx-pro-6000/serve.sh
