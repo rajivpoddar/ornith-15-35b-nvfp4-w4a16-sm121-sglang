@@ -39,6 +39,12 @@ class TestSglangDisconnectAbortBackport(unittest.TestCase):
         with self.assertRaisesRegex(PATCHER.BackportError, "unrecognized"):
             PATCHER.transform_source(self.unpatched, enforce_pin=True)
 
+    def test_validation_does_not_write_bytecode(self) -> None:
+        source = "value = 1\n"
+        target = Path("/root-owned/site-packages/module.py")
+
+        PATCHER.validate_python(source, target)
+
 
 if __name__ == "__main__":
     unittest.main()
