@@ -9,7 +9,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && ln -sf /usr/bin/python3.12 /usr/local/bin/python
 # The pinned venv is materialized into the build context by build.sh (rsync).
 COPY venv/ /opt/venv/
-RUN ln -sf /usr/bin/python3.12 /opt/venv/bin/python && /opt/venv/bin/python -c "import sglang, torch, flashinfer; print('venv-ok', sglang.__version__)" || echo "WARN: import smoke failed"
+COPY apply_sglang_disconnect_abort_backport.py /usr/local/src/
+RUN ln -sf /usr/bin/python3.12 /opt/venv/bin/python \
+    && python3.12 /usr/local/src/apply_sglang_disconnect_abort_backport.py \
+      --target /opt/venv/lib/python3.12/site-packages/sglang/srt/managers/tokenizer_manager.py \
+    && python3.12 /usr/local/src/apply_sglang_disconnect_abort_backport.py \
+      --check \
+      --target /opt/venv/lib/python3.12/site-packages/sglang/srt/managers/tokenizer_manager.py \
+    && /opt/venv/bin/python -c "import sglang, torch, flashinfer; print('venv-ok', sglang.__version__)"
 
 FROM ubuntu:24.04
 ENV DEBIAN_FRONTEND=noninteractive

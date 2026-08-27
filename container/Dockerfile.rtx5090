@@ -26,6 +26,13 @@ RUN pip install --no-cache-dir torch==2.13.0 triton==3.7.1 \
  && pip install --no-cache-dir "sglang @ git+https://github.com/sgl-project/sglang@5a7b26c63#subdirectory=python" \
  && pip install --no-cache-dir transformers accelerate
 
+COPY container/apply_sglang_disconnect_abort_backport.py /usr/local/src/
+RUN python /usr/local/src/apply_sglang_disconnect_abort_backport.py \
+      --target /opt/venv/lib/python3.12/site-packages/sglang/srt/managers/tokenizer_manager.py \
+ && python /usr/local/src/apply_sglang_disconnect_abort_backport.py \
+      --check \
+      --target /opt/venv/lib/python3.12/site-packages/sglang/srt/managers/tokenizer_manager.py
+
 RUN useradd -m -u 1001 sglang && mkdir -p /home/sglang/.cache \
     && chown -R sglang:sglang /home/sglang /opt/venv
 USER sglang

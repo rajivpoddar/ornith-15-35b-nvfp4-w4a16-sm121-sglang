@@ -1,6 +1,6 @@
 services:
   ornith-nvfp4:
-    image: ghcr.io/r0b0tlab/ornith-15-35b-nvfp4-w4a16-sm121-sglang:latest
+    image: ${ORNITH_IMAGE:-ghcr.io/r0b0tlab/ornith-15-35b-nvfp4-w4a16-sm121-sglang:latest}
     container_name: ornith-nvfp4
     ipc: host
     shm_size: 32g
