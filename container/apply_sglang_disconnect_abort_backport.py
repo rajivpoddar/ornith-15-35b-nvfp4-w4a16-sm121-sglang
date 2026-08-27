@@ -16,7 +16,6 @@ from __future__ import annotations
 import argparse
 import hashlib
 import importlib.util
-import py_compile
 import sys
 import tempfile
 from pathlib import Path
@@ -149,6 +148,11 @@ def resolve_target(explicit: str | None) -> Path:
     return Path(spec.origin)
 
 
+def validate_python(source: str, target: Path) -> None:
+    """Compile in memory so --check works for the non-root runtime user."""
+    compile(source, str(target), "exec")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--target", help="path to tokenizer_manager.py")
@@ -163,7 +167,7 @@ def main() -> int:
     if args.check:
         if state != "patched":
             raise BackportError(f"backport check failed: source is {state}")
-        py_compile.compile(str(target), doraise=True)
+        validate_python(source, target)
         print(f"sglang-disconnect-abort-backport: verified {target}")
         return 0
 
@@ -176,7 +180,7 @@ def main() -> int:
             temp_path = Path(handle.name)
         temp_path.chmod(target.stat().st_mode)
         temp_path.replace(target)
-    py_compile.compile(str(target), doraise=True)
+    validate_python(target.read_text(), target)
     print(f"sglang-disconnect-abort-backport: applied {target}")
     return 0
 
