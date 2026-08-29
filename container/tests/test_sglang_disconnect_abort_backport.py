@@ -28,6 +28,14 @@ class TestSglangDisconnectAbortBackport(unittest.TestCase):
             self.assertNotIn(old, patched)
             self.assertIn(new, patched)
 
+    def test_abort_ids_are_recorded_only_on_cancellation(self) -> None:
+        patched = PATCHER.transform_source(self.unpatched, enforce_pin=False)
+
+        self.assertEqual(
+            patched.count("obj._dispatched_rids = dispatched_rids.copy()"), 1
+        )
+        self.assertNotIn("obj._dispatched_rids = dispatched_rids\n", patched)
+
     def test_partial_application_fails_closed(self) -> None:
         _, first_old, first_new = PATCHER.REPLACEMENTS[0]
         partial = self.unpatched.replace(first_old, first_new, 1)

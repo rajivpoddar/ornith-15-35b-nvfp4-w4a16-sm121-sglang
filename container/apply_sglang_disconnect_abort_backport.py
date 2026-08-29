@@ -94,6 +94,35 @@ REPLACEMENTS: tuple[tuple[str, str, str], ...] = (
 )
 
 
+def _latest_replacements() -> tuple[tuple[str, str, str], ...]:
+    """Add the upstream normal-completion guard to the pinned backport."""
+    replacements = list(REPLACEMENTS)
+
+    label, old, new = replacements[0]
+    new = new.replace(
+        "            obj._dispatched_rids = dispatched_rids\n",
+        "",
+        1,
+    )
+    replacements[0] = (label, old, new)
+
+    label, old, new = replacements[2]
+    marker = "            self._discard_pending_req_states(obj, dispatched_rids)\n"
+    new = new.replace(
+        marker,
+        "            # Record IDs only for cancelled streams; normal completion\n"
+        "            # must not trigger a redundant delayed abort.\n"
+        "            obj._dispatched_rids = dispatched_rids.copy()\n"
+        + marker,
+        1,
+    )
+    replacements[2] = (label, old, new)
+    return tuple(replacements)
+
+
+REPLACEMENTS = _latest_replacements()
+
+
 class BackportError(RuntimeError):
     """Raised when the pinned source is absent, drifted, or partially patched."""
 
